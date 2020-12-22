@@ -57,7 +57,10 @@ def b_start(props, prop, *arg, **kwargs):
     
     visible_prop(props, "wf", False)
     visible_prop(props, "rf", False)
-    
+    visible_prop(props, "cb", False)
+    visible_prop(props, "df", False)
+    visible_prop(props, "af", False)
+
     global run
     run = True
     t = threading.Thread(target=busy_thread)
@@ -71,6 +74,9 @@ def b_stop(props, prop, *arg, **kwargs):
     
     visible_prop(props, "wf", True)
     visible_prop(props, "rf", True)
+    visible_prop(props, "cb", True)
+    visible_prop(props, "df", True)
+    visible_prop(props, "af", True)
     
     global run 
     run = False

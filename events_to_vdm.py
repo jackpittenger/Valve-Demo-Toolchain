@@ -16,7 +16,7 @@ args = parser.parse_args()
 ###
 
 def get_header(i):
-    return f'\t"{i+1}"\n\t{{\n'
+    return f'\t"{i}"\n\t{{\n'
 
 def get_factory(name):
     return f'\t\tfactory "{name}"\n'
@@ -31,14 +31,14 @@ def get_start_tick(lt, delta=0):
 def get_footer():
     return f'\t}}\n'
 
-def add_rec(i, stt, name, event_type, event_type_2, tick):
+def add_rec(i, stt, name, event_type, event_type_2, tick, typ):
     ## Start recording
     # Header
-    ret = get_header(i+1)
+    ret = get_header(i)
     # Factory
     ret += get_factory("PlayCommands")
     # Name
-    ret += get_name("REC", i)
+    ret += get_name(typ, i)
     # Start Tick
     ret += get_start_tick(stt)
     # Command
@@ -47,59 +47,74 @@ def add_rec(i, stt, name, event_type, event_type_2, tick):
     ret += get_footer() 
     return ret
 
+def get_line_info(line):
+    s = line.split(" ")
+    event_type = s[2]
+    event_type_2 = s[3]
+    event_tick = s[6].split(")")[0]
+
+    return (event_type, event_type_2, event_tick)
+
+def get_delta(event_type):
+    if event_type == "Killstreak":
+        return (args.time_after_killstreak, args.time_before_killstreak)
+    return (args.time_after_bookmark, args.time_before_bookmark)
+
 ###
 
 with open(args.demos_folder+"/_events.txt", "r") as f:
     r = f.read()
     dems = r.split(">\n")[1:]
-    for a, dem in enumerate(dems[:2]):
+    dems = [dem for dem in dems if os.path.exists(args.demos_folder+"/"+dem.split('"')[1]+".dem")]
+    for a, dem in enumerate(dems):
         name = dem.split('"')[1]
         output = "demoactions\n{\n"
         lines = dem.split("\n")[:-1]
         lt = 0
         i = 0
+        l = 0
         for line in lines:
-            s = line.split(" ")
-            event_type = s[2]
-            event_type_2 = s[3]
-            event_tick = s[6].split(")")[0]
+            event_type, event_type_2, event_tick = get_line_info(line)
             print("FILE: "+name+" TYPE: "+event_type+" @ TICK: "+event_tick)
-                
-            if event_type == "Killstreak":
-                delta_a = args.time_after_killstreak
-                delta_b = args.time_before_killstreak
-            else:
-                delta_a = args.time_after_bookmark
-                delta_b = args.time_before_bookmark
-            
-            ## Skip to 
-            # Header
-            output += get_header(i) 
-            # Factory
-            output += get_factory("SkipAhead")
-            # Name
-            output += get_name(event_type, i)
-            # Start Tick
-            output += get_start_tick(lt) 
-            # Skip to Tick
+            delta_a, delta_b = get_delta(event_type)
             stt = max(251, int(event_tick) - delta_b)    
-            output += f'\t\tskiptotick "{stt}"\n'
-            # Footer
-            output += get_footer() 
             
-            # Start recording
-            output += add_rec(i, stt, name, event_type, event_type_2, event_tick)
-
-            # Stop recording
-            output += add_rec(i+1, stt+delta_b+delta_a, name, event_type, event_type_2, event_tick)
+            if stt > lt:
+                i += 1
+                ## Skip to 
+                # Header
+                output += get_header(i) 
+                # Factory
+                output += get_factory("SkipAhead")
+                # Name
+                output += get_name(event_type, i)
+                # Start Tick
+                output += get_start_tick(lt) 
+                # Skip to Tick
+                output += f'\t\tskiptotick "{stt}"\n'
+                # Footer
+                output += get_footer()
             
+            if int(event_tick) - int(lt) > delta_a:
+                # Start recording
+                i += 1
+                output += add_rec(i, stt, name, event_type, event_type_2, event_tick, "STARTREC")
+            if len(lines) > l+1:
+                n_event_type, n_event_type_2, n_event_tick = get_line_info(lines[l+1]) 
+                n_delta_a, n_delta_b = get_delta(n_event_type)
+                if int(event_tick) + delta_a+delta_b < int(n_event_tick)-n_delta_b:
+                    # Stop recording
+                    i += 1
+                    output += add_rec(i, stt+delta_a+delta_b, name, event_type, event_type_2, event_tick, "STOPREC")
+    
             ## Pass data
-            i += 3 
+            l += 1
             lt = stt+delta_b+delta_a
 
-        output += get_header(i)
+        output += add_rec(i+1, int(lt), name, event_type, event_type_2, event_tick, "ENDREC")
+        output += get_header(i+2)
         output += get_factory("PlayCommands")
-        output += get_name("END", len(lines))
+        output += get_name("END", i+2)
         output += get_start_tick(int(lt)+100)
         if(a == len(dems)-1):
             output += f'\t\tcommands "stopdemo"\n'

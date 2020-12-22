@@ -17,8 +17,8 @@ def script_properties():
     rf = obs.obs_properties_add_text(props, "rf", "Recording folder", obs.OBS_TEXT_DEFAULT)
     obs.obs_property_set_long_description(rf, "The recording folder in your settings (must be the same). OBS doesn't allow the script to get it")
     
-    wf = obs.obs_properties_add_text(props, "wf", "Watch file", obs.OBS_TEXT_DEFAULT)
-    obs.obs_property_set_long_description(wf, "The file outputed by bench. Usually TF2_FOLDER/tf/results")
+    wf = obs.obs_properties_add_text(props, "wf", "Watch folder", obs.OBS_TEXT_DEFAULT)
+    obs.obs_property_set_long_description(wf, "The folder where bench outputs. Usually TF2_FOLDER/tf/results")
 
     b = obs.obs_properties_add_button(props,"b1","Start", b_start)
     

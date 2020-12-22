@@ -107,6 +107,7 @@ def move_file(clip_name):
     
 
 def busy_thread():
+    obs.obs_frontend_recording_stop()
     while run:
         if not os.path.exists(wf):
             print("--ERROR: Watch folder doesn't exist!")

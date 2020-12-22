@@ -101,7 +101,7 @@ with open(args.demos_folder+"/_events.txt", "r") as f:
             if len(lines) > l+1:
                 n_event_type, n_event_type_2, n_event_tick = get_line_info(lines[l+1]) 
                 n_delta_a, n_delta_b = get_delta(n_event_type)
-                if int(event_tick) + delta_a+delta_b < int(n_event_tick)-n_delta_b:
+                if int(event_tick) + delta_a < int(n_event_tick)-n_delta_b:
                     # Stop recording
                     i += 1
                     output += add_rec(i, stt+delta_a+delta_b, name, event_type, event_type_2, event_tick, "STOPREC")

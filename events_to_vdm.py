@@ -94,8 +94,7 @@ with open(args.demos_folder+"/_events.txt", "r") as f:
                 output += f'\t\tskiptotick "{stt}"\n'
                 # Footer
                 output += get_footer()
-            
-            if int(event_tick) - int(lt) > delta_a:
+                
                 # Start recording
                 i += 1
                 output += add_rec(i, stt, name, event_type, event_type_2, event_tick, "STARTREC")

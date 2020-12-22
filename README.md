@@ -8,10 +8,11 @@ This collection of tools allow you to automatically record your TF2 Demo files w
 
 ## Features
 * Record demos with OBS
-* Demos are recorded with a descriptive file
+* Demos are recorded with a descriptive file name
 * Automatically goes to the next demo
 * 1:1 recording time
 * Customizable time padding for both killstreaks and bookmarks
+* Groups close clips together
 * Cross platform (Linux, Windows, and Mac)
 
 ## Reason for Existing

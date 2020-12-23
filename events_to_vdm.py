@@ -11,6 +11,8 @@ parser.add_argument("--time_after_killstreak", type=int, help="How long should i
 parser.add_argument("--time_after_bookmark", type=int, help="How long should it record before a bookmark event? (DEFAULT 500)", default=500)
 parser.add_argument("--demos_folder_in_tf", type=str, help="To autoload the next demo you need to specify the demo folder relative to tf. Make sure to have a trailing / (DEFAULT "")", default="")
 parser.add_argument("+nochat", help="Disable chat", action="store_true")
+parser.add_argument("--custom_start_commands", type=str, help="Custom TF2 commands to run at the start of demos. Don't forget ';'!", default="")
+parser.add_argument("--custom_end_commands", type=str, help="Custom TF2 commands to run at the end of demos. Don't forget ';'!", default="")
 
 args = parser.parse_args()
 
@@ -70,6 +72,7 @@ def start_stop_commands(name, commands, i=1, tick=200):
     ret += f'\t\tcommands "{";".join(commands)}"\n'
     ret += get_footer()
     return ret
+
 ###
 
 with open(args.demos_folder+"/_events.txt", "r") as f:
@@ -82,7 +85,7 @@ with open(args.demos_folder+"/_events.txt", "r") as f:
         lines = dem.split("\n")[:-1]
 
         # Runs commands at the start
-        start_commands = []
+        start_commands = args.custom_start_commands.split(";")
         if args.nochat:
             start_commands.append("hud_saytext_time 0")
 
@@ -131,7 +134,7 @@ with open(args.demos_folder+"/_events.txt", "r") as f:
         output += add_rec(i+1, int(lt), name, event_type, event_type_2, event_tick, "STOP")
         
         # End commands
-        end_commands = []
+        end_commands = args.custom_end_commands.split(";")
         if args.nochat:
             end_commands.append("hud_saytext_time 12")
 

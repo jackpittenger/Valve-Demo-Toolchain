@@ -5,6 +5,8 @@ This collection of tools allow you to automatically record your TF2 Demo files w
 ## Requirements
 * Python 3.6+
 * OBS Studio
+#### Optional
+* pidof(1) - Required for GNU/Linux auto restart on crash
 
 ## Features
 * Record demos with OBS
@@ -13,7 +15,8 @@ This collection of tools allow you to automatically record your TF2 Demo files w
 * 1:1 recording time
 * Customizable time padding for both killstreaks and bookmarks
 * Groups close clips together
-* Cross platform (Linux, Windows, and Mac)
+* (GNU/Linux ONLY) Optionally auto-restart TF2 on crash
+* Cross platform (GNU/Linux, Windows, and Mac)
 
 ## Reason for Existing
 ### TF2 Demo Export is very slow
@@ -46,11 +49,14 @@ OBS will pick up anything that you set in your audio input settings, including n
     * `"path/to/demos/folder"` as the path to where your demos are located (usually tf)
     
     Optionally with
-    * `--time_before_killstreak int` (DEFAULT 1000) Ticks before a killstreak event to start recording
-    * `--time_before_bookmark int` (DEFAULT 1000) Ticks before a bookmark event to start recording
-    * `--time_after_killstreak int` (DEFAULT 500) Ticks after a killstreak event to start recording
-    * `--time_after_bookmark int` (DEFAULT 500) Ticks after a bookmark event to start recording
-    * `--demos_folder_in_tf folder/` (DEFAULT "") If you have symlinked your demos folder to another path, use this to specify where to look inside tf for the next demo file
+    * `--time_before_killstreak int` *(DEFAULT 1000)* Ticks before a killstreak event to start recording
+    * `--time_before_bookmark int` *(DEFAULT 1000)* Ticks before a bookmark event to start recording
+    * `--time_after_killstreak int` *(DEFAULT 500)* Ticks after a killstreak event to start recording
+    * `--time_after_bookmark int` *(DEFAULT 500)* Ticks after a bookmark event to start recording
+    * `--demos_folder_in_tf folder/` *(DEFAULT "")* If you have symlinked your demos folder to another path, use this to specify where to look inside tf for the next demo file
+    * `+nochat` *(DEFAULT FALSE)* Disable chat replay
+    * `--custom_start_commands "commands_seperated by;"` *(DEFAULT "")* Commands to be run at the start of a demo. Takes in "" containing ; separated commands
+    * `--custom_end_commands "commands_seperated by;"` *(DEFAULT "")* Commands to be run at the end of a demo. Takes in "" containing ; separated commands
     
     You should now have a .vdm file generated for all the demos
 4. Open TF2 and configure OBS to record it

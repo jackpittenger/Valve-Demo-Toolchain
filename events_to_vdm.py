@@ -42,7 +42,7 @@ def add_rec(i, stt, name, event_type, event_type_2, tick, typ):
     # Start Tick
     ret += get_start_tick(stt)
     # Command
-    ret += f'\t\tcommands "sv_cheats 1;bench_start REC.{name}_{event_type}_{event_type_2}_{tick};bench_end;snd_restart;sv_cheats 0;"\n'
+    ret += f'\t\tcommands "sv_cheats 1;bench_start REC{typ}.{name}_{event_type}_{event_type_2}_{tick};bench_end;snd_restart;sv_cheats 0;"\n'
     # Footer
     ret += get_footer() 
     return ret
@@ -97,20 +97,20 @@ with open(args.demos_folder+"/_events.txt", "r") as f:
                 
                 # Start recording
                 i += 1
-                output += add_rec(i, stt, name, event_type, event_type_2, event_tick, "STARTREC")
+                output += add_rec(i, stt, name, event_type, event_type_2, event_tick, "START")
             if len(lines) > l+1:
                 n_event_type, n_event_type_2, n_event_tick = get_line_info(lines[l+1]) 
                 n_delta_a, n_delta_b = get_delta(n_event_type)
                 if int(event_tick) + delta_a < int(n_event_tick)-n_delta_b:
                     # Stop recording
                     i += 1
-                    output += add_rec(i, stt+delta_a+delta_b, name, event_type, event_type_2, event_tick, "STOPREC")
+                    output += add_rec(i, stt+delta_a+delta_b, name, event_type, event_type_2, event_tick, "STOP")
     
             ## Pass data
             l += 1
             lt = stt+delta_b+delta_a
 
-        output += add_rec(i+1, int(lt), name, event_type, event_type_2, event_tick, "ENDREC")
+        output += add_rec(i+1, int(lt), name, event_type, event_type_2, event_tick, "STOP")
         output += get_header(i+2)
         output += get_factory("PlayCommands")
         output += get_name("END", i+2)

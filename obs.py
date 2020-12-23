@@ -120,8 +120,14 @@ def busy_thread():
         elif not os.path.exists(rf):
             print("--ERROR: Record folder doesn't exist!")
         else:
-            res = [fn for fn in os.listdir(wf) if fn.startswith("rec.")]
+            res = [fn for fn in os.listdir(wf) if fn.startswith("recstart.")]
             if(len(res) > 0):
+                print("RECSTART Detected")
+                os.remove(wf+"/"+res[0])
+                obs.obs_frontend_recording_start()
+            res = [fn for fn in os.listdir(wf) if fn.startswith("recstop.")]
+            if len(res) > 0:
+                print("RECSTOP DETECTED")
                 os.remove(wf+"/"+res[0])
                 if obs.obs_frontend_recording_active():
                     obs.obs_frontend_recording_stop()
@@ -137,7 +143,4 @@ def busy_thread():
                             print("--ERROR: Archive folder doesn't exist!")
                         else:
                             move_file("_".join(res[0].split(".")[1].split("_")[:2]))            
-                else:
-                    obs.obs_frontend_recording_start()
-                print("REC Detected")
         time.sleep(.1)

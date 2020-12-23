@@ -11,6 +11,7 @@ parser.add_argument("--time_after_killstreak", type=int, help="How long should i
 parser.add_argument("--time_after_bookmark", type=int, help="How long should it record before a bookmark event? (DEFAULT 500)", default=500)
 parser.add_argument("--demos_folder_in_tf", type=str, help="To autoload the next demo you need to specify the demo folder relative to tf. Make sure to have a trailing / (DEFAULT "")", default="")
 parser.add_argument("+nochat", help="Disable chat", action="store_true")
+parser.add_argument("+autorestart", help="Automatically restart the game on crash", action="store_true")
 parser.add_argument("--custom_start_commands", type=str, help="Custom TF2 commands to run at the start of demos. Don't forget ';'!", default="")
 parser.add_argument("--custom_end_commands", type=str, help="Custom TF2 commands to run at the end of demos. Don't forget ';'!", default="")
 
@@ -45,7 +46,7 @@ def add_rec(i, stt, name, event_type, event_type_2, tick, typ):
     # Start Tick
     ret += get_start_tick(stt)
     # Command
-    ret += f'\t\tcommands "sv_cheats 1;bench_start REC{typ}.{name}_{event_type}_{event_type_2}_{tick};bench_end;snd_restart;sv_cheats 0;"\n'
+    ret += f'\t\tcommands "sv_cheats 1;bench_start REC{typ}.{name}_{event_type}_{event_type_2}_{tick};bench_end;snd_restart;hud_reloadscheme;sv_cheats 0;"\n'
     # Footer
     ret += get_footer() 
     return ret
@@ -69,7 +70,7 @@ def start_stop_commands(name, commands, i=1, tick=200):
     ret += get_factory("PlayCommands")
     ret += get_name(name, i)
     ret += get_start_tick(tick)
-    ret += f'\t\tcommands "{";".join(commands)}"\n'
+    ret += f'\t\tcommands "{commands}"\n'
     ret += get_footer()
     return ret
 
@@ -85,10 +86,13 @@ with open(args.demos_folder+"/_events.txt", "r") as f:
         lines = dem.split("\n")[:-1]
 
         # Runs commands at the start
-        start_commands = args.custom_start_commands.split(";")
-        if args.nochat:
-            start_commands.append("hud_saytext_time 0")
+        start_commands = args.custom_start_commands
 
+        if args.nochat:
+            start_commands += "hud_saytext_time 0;"
+        if args.autorestart:
+            start_commands += "sv_cheats 1;bench_start RECNEXT."+name+";bench_end;sv_cheats 0;"
+            
         output += start_stop_commands("STARTCMDS", start_commands)
         
         lt = 0
@@ -134,10 +138,15 @@ with open(args.demos_folder+"/_events.txt", "r") as f:
         output += add_rec(i+1, int(lt), name, event_type, event_type_2, event_tick, "STOP")
         
         # End commands
-        end_commands = args.custom_end_commands.split(";")
+        end_commands = args.custom_end_commands
         if args.nochat:
-            end_commands.append("hud_saytext_time 12")
-
+            end_commands += "hud_saytext_time 12;"
+        if args.autorestart:
+            if len(dems) > a+1:
+                end_commands += "sv_cheats 1;bench_start RECNEXT."+dems[a+1].split('"')[1]+";bench_end;sv_cheats 0;"
+            else:
+                end_commands += "sv_cheats 1;bench_start RECNEXT.END;bench_end;sv_cheats 0;"
+        
         output += start_stop_commands("ENDCMDS", end_commands, i+2, int(lt)+50)
         
         output += get_header(i+3)

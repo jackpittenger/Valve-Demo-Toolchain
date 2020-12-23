@@ -2,6 +2,9 @@
 # Valve Demo Toolchain
 This collection of tools allow you to perform useful operations on Valve's .dem files, including automatically recording your TF2 Demo files with OBS.
 
+* [Events to VDM](#events-to-vdm)
+* [Demo2Obs](#demo2obs)
+
 ## Tools
 ### Events to VDM
 Transforms your \_events.txt into VDM files that are read by the Source engine.
@@ -23,6 +26,7 @@ Optionally with
 * `--custom_start_commands "commands_seperated by;"` *(DEFAULT "")* Commands to be run at the start of a demo. Takes in "" containing ; separated commands.
 * `--custom_end_commands "commands_seperated by;"` *(DEFAULT "")* Commands to be run at the end of a demo. Takes in "" containing ; separated commands.
 
+---
 ### Demo2Obs
 See [this README](https://github.com/realSaddy/Valve-Demo-Toolchain/tree/master/obs#demo2obs)
 

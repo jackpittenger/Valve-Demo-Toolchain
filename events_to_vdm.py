@@ -2,7 +2,7 @@
 import os
 import argparse
 
-parser = argparse.ArgumentParser(description="Demo2Obs by https://github.com/realSaddy")
+parser = argparse.ArgumentParser(description="Demo2Obs by https://github.com/realSaddy", prefix_chars="-+")
 
 parser.add_argument("demos_folder", type=str, help="The directory where your demos and _events.txt is stored")
 parser.add_argument("--time_before_killstreak", type=int, help="How long should it record before a killstreak event? (DEFAULT 1000)", default=1000)
@@ -10,6 +10,7 @@ parser.add_argument("--time_before_bookmark", type=int, help="How long should it
 parser.add_argument("--time_after_killstreak", type=int, help="How long should it record before a killstreak event? (DEFAULT 500)", default=500)
 parser.add_argument("--time_after_bookmark", type=int, help="How long should it record before a bookmark event? (DEFAULT 500)", default=500)
 parser.add_argument("--demos_folder_in_tf", type=str, help="To autoload the next demo you need to specify the demo folder relative to tf. Make sure to have a trailing / (DEFAULT "")", default="")
+parser.add_argument("+nochat", help="Disable chat", action="store_true")
 
 args = parser.parse_args()
 
@@ -60,6 +61,15 @@ def get_delta(event_type):
         return (args.time_after_killstreak, args.time_before_killstreak)
     return (args.time_after_bookmark, args.time_before_bookmark)
 
+def start_stop_commands(name, commands, i=1, tick=200):
+    ret = ""
+    ret += get_header(i)
+    ret += get_factory("PlayCommands")
+    ret += get_name(name, i)
+    ret += get_start_tick(tick)
+    ret += f'\t\tcommands "{";".join(commands)}"\n'
+    ret += get_footer()
+    return ret
 ###
 
 with open(args.demos_folder+"/_events.txt", "r") as f:
@@ -70,8 +80,16 @@ with open(args.demos_folder+"/_events.txt", "r") as f:
         name = dem.split('"')[1]
         output = "demoactions\n{\n"
         lines = dem.split("\n")[:-1]
+
+        # Runs commands at the start
+        start_commands = []
+        if args.nochat:
+            start_commands.append("hud_saytext_time 0")
+
+        output += start_stop_commands("STARTCMDS", start_commands)
+        
         lt = 0
-        i = 0
+        i = 1
         l = 0
         for line in lines:
             event_type, event_type_2, event_tick = get_line_info(line)
@@ -111,9 +129,17 @@ with open(args.demos_folder+"/_events.txt", "r") as f:
             lt = stt+delta_b+delta_a
 
         output += add_rec(i+1, int(lt), name, event_type, event_type_2, event_tick, "STOP")
-        output += get_header(i+2)
+        
+        # End commands
+        end_commands = []
+        if args.nochat:
+            end_commands.append("hud_saytext_time 12")
+
+        output += start_stop_commands("ENDCMDS", end_commands, i+2, int(lt)+50)
+        
+        output += get_header(i+3)
         output += get_factory("PlayCommands")
-        output += get_name("END", i+2)
+        output += get_name("END", i+3)
         output += get_start_tick(int(lt)+100)
         if(a == len(dems)-1):
             output += f'\t\tcommands "stopdemo"\n'

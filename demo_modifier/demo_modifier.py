@@ -1,5 +1,6 @@
 # Created by https://github.com/realSaddy
 import os
+import sys
 import struct
 import argparse
 
@@ -9,50 +10,31 @@ parser.add_argument("demo", type=str, help="The demo to perform the operations o
 
 args = parser.parse_args()
 
-### Helpers
+from functions.header import get_header
+from functions.dem_signon import Dem_Signon
 
-def read_int(f, n=4):
-    return struct.unpack("i", f.read(n))[0]
-
-def read_float(f, n=4):
-    return struct.unpack("f", f.read(n))[0]
-
-def read_string(f, n=260):
-    return f.read(n).strip(b"\x00")
-
-###
-
-### Main functions
-
-def get_header(f):
-    dem_protocol = read_int(f) 
-    net_protocol = read_int(f)
-    host_name = read_string(f)
-    client_name = read_string(f)
-    map_name = read_string(f)
-    gamedir = read_string(f)
-    time = read_float(f)
-    ticks = read_int(f)
-    frames = read_int(f)
-
-
-    print("Dem Protocol: "+str(dem_protocol))
-    print("Net Protocol: "+str(net_protocol))
-    print("Host Name: "+str(host_name))
-    print("Client Name: "+str(client_name))
-    print("Map Name: "+str(map_name))
-    print("Game Dir: "+str(gamedir))
-    print("Time: "+str(time))
-    print("Ticks: "+str(ticks))
-    print("Frames: "+str(frames))
-    
-###
+from helpers.read_string import read_string
+from helpers.read_char import read_char
+from helpers.read_int import read_int
 
 if os.path.exists(args.demo) and args.demo[-4:] == ".dem":
     f = open(args.demo, "rb")
     if read_string(f, 8) != b"HL2DEMO":
         print("ERROR: Invalid header!")
     else:
-        get_header(f)
+        get_header(f, True)
+        # Cmd Header
+        cmd_type = read_char(f)
+        tick = read_int(f)
+        print("Type: "+str(cmd_type))
+        print("Tick: "+str(tick))
+
+        Dem_Signon(f)
+        
+        first = read_char(f)
+        tick = read_int(f)
+        print("Type: "+str(first))
+        print("Tick: "+str(tick))
+        #print(read_data(f))
 else:
     print("ERROR: Invalid file!")

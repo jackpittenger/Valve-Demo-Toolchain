@@ -5,5 +5,6 @@ class RawData:
 
     def __init__(self, f):
         self.size = read_int(f)
+        print("SIZE: "+str(self.size))
         self.data = read_uchar(f, self.size)
 

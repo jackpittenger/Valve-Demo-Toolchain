@@ -11,7 +11,9 @@ parser.add_argument("demo", type=str, help="The demo to perform the operations o
 args = parser.parse_args()
 
 from functions.header import get_header
+from functions.dem_consolecmd import Dem_Consolecmd
 from functions.dem_signon import Dem_Signon
+from functions.dem_packet import Dem_Packet
 from functions.dem_datatables import Dem_Datatables
 from functions.dem_stringtables import Dem_Stringtables
 
@@ -26,7 +28,7 @@ if os.path.exists(args.demo) and args.demo[-4:] == ".dem":
     else:
         get_header(f, True)
         # Cmd Header
-        for i in range(0, 8):        
+        for i in range(0, 300):        
             cmd_type = read_char(f)
             tick = read_int(f)
             
@@ -34,8 +36,12 @@ if os.path.exists(args.demo) and args.demo[-4:] == ".dem":
             print("Tick: "+str(tick))
             if cmd_type == 1:
                 Dem_Signon(f)
+            elif cmd_type == 2:
+                Dem_Packet(f)
             elif cmd_type == 3:
                 pass
+            elif cmd_type == 4:
+                Dem_Consolecmd(f)
             elif cmd_type == 6:
                 Dem_Datatables(f)
             elif cmd_type == 8:
